@@ -1,27 +1,55 @@
-import gradio as gr
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from transformers import pipeline
+from PIL import Image
+import io
+import uvicorn
 
-# Load model
+app = FastAPI(title="Crop Disease API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+print("Loading model...")
 classifier = pipeline(
     "image-classification",
     model="models/final_model",
     top_k=5
 )
+print("Model loaded!")
 
-def predict(image):
-    if image is None:
-        return {}
+
+@app.get("/")
+def home():
+    return {
+        "status": "running",
+        "model": "Pakistan Crop Disease Detector",
+        "usage": "POST /predict with image file"
+    }
+
+
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    contents = await file.read()
+    image = Image.open(io.BytesIO(contents)).convert("RGB")
+
     results = classifier(image)
-    return {r["label"]: round(r["score"], 4) for r in results}
 
-# Create web app
-demo = gr.Interface(
-    fn=predict,
-    inputs=gr.Image(type="pil", label="Upload Leaf Image"),
-    outputs=gr.Label(num_top_classes=5, label="Disease Prediction"),
-    title="🌾 Pakistan Crop Disease Detector",
-    description="Upload a leaf image to detect crop disease. Supports Corn, Grape, Pepper, Potato, and Tomato.",
-    examples=["leaf.jpg"] if __import__("os").path.exists("leaf.jpg") else None,
-)
+    return {
+        "success": True,
+        "predictions": [
+            {
+                "disease": r["label"],
+                "confidence": round(r["score"] * 100, 2)
+            }
+            for r in results
+        ]
+    }
 
-demo.launch()
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
