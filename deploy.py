@@ -24,7 +24,7 @@ def main():
 
 
     # ---------------------------------------------------
-    # FIX README (YE MAIN FIX HAI - INFERENCE API KE LIYE)
+    # FIX README (THIS IS MAIN FIX - FOR INFERENCE API )
     # ---------------------------------------------------
 
     readme = """---
