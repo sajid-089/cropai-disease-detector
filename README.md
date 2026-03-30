@@ -30,7 +30,8 @@ This model is designed to detect various diseases in crops common in Pakistan (T
 
 ## 🚀 Model Details
 - **Accuracy:** 95.6% on Validation Set
-- **Architecture:** Vision Transformer / ResNet (Fine-tuned)
+- **Architecture:* Fine‑tuned **MobileNetV2** model to detect crop diseases
+from leaf images (Tomato, Potato, Corn, Pepper, Grape)
 - **Input Size:** 224x224 pixels
 - **Training Epochs:** 10+ (Early stopping applied)
 
